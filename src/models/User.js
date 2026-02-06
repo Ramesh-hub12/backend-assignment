@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-/**
- * USER SCHEMA
- * Includes authentication fields and Role-Based Access Control (RBAC).
- */
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -18,7 +14,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please add a password'],
     minlength: 6,
-    select: false // Ensures password isn't accidentally leaked in API responses
+    select: false 
   },
   role: {
     type: String,
@@ -27,8 +23,7 @@ const userSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-// PASSWORD HASHING MIDDLEWARE
-// Automatically hashes the password before saving to the database
+
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
     next();
@@ -37,7 +32,7 @@ userSchema.pre('save', async function(next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// METHOD TO MATCH PASSWORD
+
 userSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

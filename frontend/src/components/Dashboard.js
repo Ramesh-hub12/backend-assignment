@@ -19,7 +19,6 @@ const Dashboard = () => {
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      //
       await createTask({ title });
       setTitle('');
       loadTasks();
@@ -30,7 +29,6 @@ const Dashboard = () => {
 
   const handleDelete = async (id) => {
     try {
-      //
       await deleteTask(id);
       loadTasks();
     } catch (err) {

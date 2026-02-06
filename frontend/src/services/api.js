@@ -21,12 +21,9 @@ export const login = (formData) => API.post('/auth/login', formData);
 
 export const register = (formData) => API.post('/auth/register', formData);
 
-
-
 export const getTasks = () => API.get('/tasks');
 
 export const createTask = (taskData) => API.post('/tasks', taskData);
-
 
 export const deleteTask = (id) => API.delete(`/tasks/${id}`);
 
