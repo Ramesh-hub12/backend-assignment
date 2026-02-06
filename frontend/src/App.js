@@ -1,127 +1,190 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Sparkles, 
-  Plus, 
-  Trash2, 
-  LogOut, 
-  CheckCircle2, 
-  Circle, 
-  Shield, 
-  Loader2,
-  Mail,
-  Lock,
-  ChevronDown,
-  ChevronUp,
-  BrainCircuit
-} from 'lucide-react';
+// import React, { useState, useEffect } from 'react';
+// import { Trash2, LogOut, Shield, } from 'lucide-react';
 
-/**
- * GEMINI AI CONFIGURATION
- * These functions power the "Smart" features of the workspace.
- */
-const apiKey = ""; // API Key provided by the environment
-const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025";
+// const API_URL = 'http://localhost:5000/api/v1';
 
-const fetchGemini = async (prompt, systemInstruction = "") => {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-  const payload = {
-    contents: [{ parts: [{ text: prompt }] }],
-    systemInstruction: { parts: [{ text: systemInstruction }] }
-  };
+// const App = () => {
+//   const [token, setToken] = useState(localStorage.getItem('token'));
+//   const [tasks, setTasks] = useState([]);
+//   const [email, setEmail] = useState('');
+//   const [password, setPassword] = useState('');
+//   const [isLogin, setIsLogin] = useState(true);
+//   const [newTask, setNewTask] = useState('');
 
-  const retryFetch = async (retries = 0) => {
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!response.ok) throw new Error('API Error');
-      const result = await response.json();
-      return result.candidates?.[0]?.content?.parts?.[0]?.text || "No response.";
-    } catch (err) {
-      if (retries < 5) {
-        await new Promise(r => setTimeout(r, Math.pow(2, retries) * 1000));
-        return retryFetch(retries + 1);
-      }
-      throw err;
-    }
-  };
-  return retryFetch();
-};
+//   useEffect(() => {
+//     if (token) fetchTasks();
+//   }, [token]);
 
-/**
- * BACKEND SERVICE CONFIG
- * Using fetch directly in one file to prevent "Module not found" path errors.
- */
+//   const fetchTasks = async () => {
+//     try {
+//       const res = await fetch(`${API_URL}/tasks`, {
+//         headers: { 'Authorization': `Bearer ${token}` }
+//       });
+//       const data = await res.json();
+//       setTasks(Array.isArray(data) ? data : []);
+//     } catch (e) { console.log(e); }
+//   };
+
+//   const handleAuth = async (e) => {
+//     e.preventDefault();
+//     const path = isLogin ? 'login' : 'register';
+//     const res = await fetch(`${API_URL}/auth/${path}`, {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ email, password, role: 'admin' })
+//     });
+//     const data = await res.json();
+//     if (res.ok && isLogin) {
+//       localStorage.setItem('token', data.token);
+//       setToken(data.token);
+//     } else if (res.ok) {
+//       alert("Account created! Please login.");
+//       setIsLogin(true);
+//     } else {
+//       alert(data.message);
+//     }
+//   };
+
+//   const handleAddTask = async (e) => {
+//     e.preventDefault();
+//     if (!newTask) return;
+//     const res = await fetch(`${API_URL}/tasks`, {
+//       method: 'POST',
+//       headers: { 
+//         'Content-Type': 'application/json',
+//         'Authorization': `Bearer ${token}` 
+//       },
+//       body: JSON.stringify({ title: newTask })
+//     });
+//     if (res.ok) {
+//       setNewTask('');
+//       fetchTasks();
+//     } else {
+//       const err = await res.json();
+//       alert(err.message);
+//     }
+//   };
+
+//   const deleteTask = async (id) => {
+//     const res = await fetch(`${API_URL}/tasks/${id}`, {
+//       method: 'DELETE',
+//       headers: { 'Authorization': `Bearer ${token}` }
+//     });
+//     if (res.ok) fetchTasks();
+//     else alert("Action denied.");
+//   };
+
+//   return (
+//     <div className="container">
+//       <style>{`
+//         .container { background-color: #f4f7f6; min-height: 100vh; font-family: Arial, sans-serif; color: #333; padding: 20px; }
+//         .auth-card { background: white; max-width: 350px; margin: 80px auto; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+//         .input-group { margin-bottom: 15px; text-align: left; }
+//         input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+//         .btn { width: 100%; padding: 10px; background-color: #4f46e5; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+//         .btn:hover { background-color: #4338ca; }
+//         .dashboard { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+//         .task-list { list-style: none; padding: 0; }
+//         .task-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; }
+//         .task-item:last-child { border-bottom: none; }
+//         .delete-btn { background: none; border: none; color: #ef4444; cursor: pointer; }
+//         .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+//       `}</style>
+
+//       {!token ? (
+//         <div className="auth-card">
+//           <Shield size={40} color="#4f46e5" style={{ marginBottom: '10px' }} />
+//           <h2>Anything AI</h2>
+//           <p>{isLogin ? 'Welcome back!' : 'Create an account'}</p>
+//           <form onSubmit={handleAuth}>
+//             <div className="input-group">
+//               <input type="email" placeholder="Email Address" onChange={e => setEmail(e.target.value)} required />
+//             </div>
+//             <div className="input-group">
+//               <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} required />
+//             </div>
+//             <button className="btn" type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
+//           </form>
+//           <p style={{ marginTop: '20px', fontSize: '14px', cursor: 'pointer', color: '#6366f1' }} onClick={() => setIsLogin(!isLogin)}>
+//             {isLogin ? "Don't have an account? Register" : "Already have an account? Login"}
+//           </p>
+//         </div>
+//       ) : (
+//         <div className="dashboard">
+//           <div className="nav">
+//             <h2 style={{ margin: 0 }}>My Tasks</h2>
+//             <button onClick={() => { localStorage.removeItem('token'); setToken(null); }} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+//               <LogOut color="#666" />
+//             </button>
+//           </div>
+
+//           <form onSubmit={handleAddTask} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+//             <input 
+//               style={{ margin: 0 }}
+//               placeholder="What needs to be done?" 
+//               value={newTask} 
+//               onChange={e => setNewTask(e.target.value)} 
+//             />
+//             <button className="btn" style={{ width: '80px', marginTop: 0 }} type="submit">Add</button>
+//           </form>
+
+//           <ul className="task-list">
+//             {tasks.length === 0 && <p style={{ textAlign: 'center', color: '#999' }}>No tasks found.</p>}
+//             {tasks.map(task => (
+//               <li key={task._id} className="task-item">
+//                 <span>{task.title}</span>
+//                 <button className="delete-btn" onClick={() => deleteTask(task._id)}>
+//                   <Trash2 size={18} />
+//                 </button>
+//               </li>
+//             ))}
+//           </ul>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default App;
+import React, { useState, useEffect, useCallback } from 'react';
+import { Plus, Trash2, LogOut, Shield, CheckCircle2, Circle } from 'lucide-react';
+
 const BASE_URL = 'http://localhost:5000/api/v1';
-const getHeaders = () => ({
-  'Content-Type': 'application/json',
-  'Authorization': `Bearer ${localStorage.getItem('token')}`
-});
 
 const App = () => {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('user');
   const [newTask, setNewTask] = useState('');
-  
-  // AI States
-  const [aiInsights, setAiInsights] = useState("");
-  const [expandedId, setExpandedId] = useState(null);
-  const [breakdowns, setBreakdowns] = useState({});
-  const [aiWorking, setAiWorking] = useState(null);
 
-  useEffect(() => {
-    if (token) fetchTasks();
-  }, [token]);
+  const getHeaders = useCallback(() => ({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  }), [token]);
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`${BASE_URL}/tasks`, { headers: getHeaders() });
-      if (!res.ok) throw new Error("Unauthorized");
+      if (!res.ok) throw new Error("Session expired");
       const data = await res.json();
-      setTasks(data);
-      if (data.length > 0) getInsights(data);
+      setTasks(Array.isArray(data) ? data : []);
     } catch (e) { 
-      console.error(e); 
-      if (e.message === "Unauthorized") logout();
+      if (e.message === "Session expired") {
+        localStorage.removeItem('token');
+        setToken(null);
+      }
     } finally { setLoading(false); }
-  };
+  }, [getHeaders]);
 
-  const getInsights = async (currentTasks) => {
-    const titles = currentTasks.slice(0, 5).map(t => t.title).join(", ");
-    try {
-      const insight = await fetchGemini(`Review these tasks: ${titles}. Provide a 1-sentence motivational insight for a professional workspace.`, "You are a productivity coach.");
-      setAiInsights(insight);
-    } catch (e) { setAiInsights("Operational efficiency confirmed. Ready for new objectives."); }
-  };
-
-  const handleMagicRefine = async () => {
-    if (!newTask) return;
-    setAiWorking('refine');
-    try {
-      const refined = await fetchGemini(`Professionalize this task title: "${newTask}". Return ONLY the new title.`);
-      setNewTask(refined.replace(/["']/g, "").trim());
-    } finally { setAiWorking(null); }
-  };
-
-  const handleBreakdown = async (task) => {
-    if (expandedId === task._id) { setExpandedId(null); return; }
-    if (breakdowns[task._id]) { setExpandedId(task._id); return; }
-    
-    setAiWorking(task._id);
-    try {
-      const result = await fetchGemini(`For the task "${task.title}", provide 3 bullet points on how to complete it.`, "Project manager.");
-      setBreakdowns(prev => ({ ...prev, [task._id]: result }));
-      setExpandedId(task._id);
-    } finally { setAiWorking(null); }
-  };
+  useEffect(() => {
+    if (token) fetchTasks();
+  }, [token, fetchTasks]);
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -134,21 +197,20 @@ const App = () => {
         body: JSON.stringify({ email, password, role })
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Auth failed");
       
-      if (!res.ok) throw new Error(data.message || "Authentication failed");
-
       if (isLogin) {
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-          setToken(data.token);
-        }
+        localStorage.setItem('token', data.token);
+        setToken(data.token);
       } else {
-        alert("Registration Successful! Please sign in with your credentials.");
+        alert("Registration successful! Please login.");
         setIsLogin(true);
       }
-    } catch (err) { 
-      alert(err.message); 
-    } finally { setLoading(false); }
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const addTask = async (e) => {
@@ -163,155 +225,150 @@ const App = () => {
       if (res.ok) {
         setNewTask('');
         fetchTasks();
+      } else {
+        const errorData = await res.json();
+        alert(errorData.message);
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      alert("Error adding task.");
+    }
+  };
+
+  const toggleTaskStatus = async (task) => {
+    const nextStatus = task.status === 'completed' ? 'pending' : 'completed';
+    try {
+      await fetch(`${BASE_URL}/tasks/${task._id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ status: nextStatus })
+      });
+      fetchTasks();
+    } catch (e) {
+      console.error("Update failed");
+    }
   };
 
   const deleteTask = async (id) => {
     try {
-      const res = await fetch(`${BASE_URL}/tasks/${id}`, { method: 'DELETE', headers: getHeaders() });
-      if (res.ok) fetchTasks();
-      else {
+      const res = await fetch(`${BASE_URL}/tasks/${id}`, { 
+        method: 'DELETE', 
+        headers: getHeaders() 
+      });
+      
+      if (res.ok) {
+        fetchTasks();
+      } else {
         const data = await res.json();
-        alert(data.message || "Unauthorized: Admin access required.");
+        // Specifically handles the RBAC 'admin' check feedback
+        alert(data.message || "Permission Denied: Only Admins can delete tasks.");
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      alert("Error deleting task.");
+    }
   };
 
-  const logout = () => { localStorage.removeItem('token'); setToken(null); setAiInsights(""); };
-
-  const styles = `
-    .app-container { background: #0f172a; min-height: 100vh; color: #f8fafc; font-family: 'Inter', sans-serif; }
-    .auth-card { background: #1e293b; padding: 2.5rem; border-radius: 1.5rem; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border: 1px solid #334155; }
-    .input-field { width: 100%; background: #020617; border: 1px solid #334155; border-radius: 0.75rem; padding: 0.85rem 1rem 0.85rem 2.5rem; color: white; transition: 0.2s; box-sizing: border-box; font-size: 0.95rem; }
-    .input-field:focus { outline: 2px solid #6366f1; border-color: transparent; }
-    .primary-btn { width: 100%; background: #6366f1; color: white; border: none; padding: 0.85rem; border-radius: 0.75rem; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .primary-btn:hover { background: #4f46e5; transform: translateY(-1px); }
-    .task-item { background: #1e293b; border: 1px solid #334155; border-radius: 1.25rem; padding: 1.25rem; margin-bottom: 1rem; transition: 0.2s; }
-    .task-item:hover { border-color: #6366f1; background: #232f45; }
-    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 100; }
-    .ai-badge { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; padding: 0.35rem 0.65rem; border-radius: 0.5rem; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; gap: 6px; letter-spacing: 0.05em; border: 1px solid rgba(99, 102, 241, 0.2); }
-    .ai-insight-box { border-left: 4px solid #6366f1; background: rgba(99, 102, 241, 0.03); padding: 1.5rem; border-radius: 0 1.25rem 1.25rem 0; margin-bottom: 2.5rem; }
-  `;
+  const logout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setTasks([]);
+  };
 
   return (
-    <div className="app-container">
-      <style>{styles}</style>
-      
+    <div className="wrapper">
+      <style>{`
+        .wrapper { background: #f8fafc; min-height: 100vh; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; color: #1e293b; }
+        .auth-card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 380px; margin: 80px auto; text-align: center; border: 1px solid #e2e8f0; }
+        .title { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #0f172a; }
+        .subtitle { color: #64748b; font-size: 14px; margin-bottom: 24px; }
+        .input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        .btn { width: 100%; padding: 12px; background: #4f46e5; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 16px; margin-top: 10px; transition: background 0.2s; }
+        .btn:hover { background: #4338ca; }
+        .dashboard { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
+        .task-list { margin-top: 20px; }
+        .task-row { display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid #f1f5f9; border-radius: 10px; margin-bottom: 10px; transition: transform 0.1s; }
+        .task-row:hover { background: #f8fafc; }
+        .task-info { display: flex; align-items: center; gap: 12px; cursor: pointer; flex: 1; }
+        .task-text { font-size: 16px; font-weight: 500; }
+        .completed { text-decoration: line-through; color: #94a3b8; }
+        .delete-btn { background: none; border: none; color: #94a3b8; cursor: pointer; padding: 5px; transition: color 0.2s; }
+        .delete-btn:hover { color: #ef4444; }
+        .empty-state { text-align: center; color: #94a3b8; padding: 40px 0; }
+      `}</style>
+
       {!token ? (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '1rem' }}>
-          <div className="auth-card">
-            <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-              <div style={{ background: '#6366f1', display: 'inline-block', padding: '0.75rem', borderRadius: '1rem', marginBottom: '1.25rem' }}>
-                <Shield size={32} color="white" />
-              </div>
-              <h2 style={{ fontSize: '2rem', fontWeight: '800', margin: '0 0 0.5rem 0' }}>Anything AI</h2>
-              <p style={{ color: '#94a3b8', margin: 0, fontSize: '0.9rem' }}>{isLogin ? 'Access your intelligence-driven workspace' : 'Join our high-performance workforce'}</p>
-            </div>
-            
-            <form onSubmit={handleAuth}>
-              <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                <Mail style={{ position: 'absolute', left: '12px', top: '14px', color: '#64748b' }} size={18} />
-                <input type="email" placeholder="Work Email" className="input-field" onChange={e => setEmail(e.target.value)} required />
-              </div>
-              <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                <Lock style={{ position: 'absolute', left: '12px', top: '14px', color: '#64748b' }} size={18} />
-                <input type="password" placeholder="Password" className="input-field" onChange={e => setPassword(e.target.value)} required />
-              </div>
-              {!isLogin && (
-                <div style={{ marginBottom: '1rem' }}>
-                  <select className="input-field" style={{ paddingLeft: '1rem' }} onChange={e => setRole(e.target.value)}>
-                    <option value="user">Assign User Role</option>
-                    <option value="admin">Assign Admin Role</option>
-                  </select>
-                </div>
-              )}
-              <button className="primary-btn" type="submit" disabled={loading}>
-                {loading ? <Loader2 size={20} className="animate-spin" /> : (isLogin ? 'Sign In' : 'Create Account')}
-              </button>
-            </form>
-            <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.9rem', color: '#94a3b8', cursor: 'pointer', fontWeight: '500' }} onClick={() => setIsLogin(!isLogin)}>
-              {isLogin ? 'Join the AI workforce? Register' : 'Existing staff? Login'}
-            </p>
+        <div className="auth-card">
+          <Shield size={48} color="#4f46e5" style={{ marginBottom: '15px' }} />
+          <div className="title">Anything AI</div>
+          <div className="subtitle">{isLogin ? 'Sign in to access your tasks' : 'Create a new account'}</div>
+          <form onSubmit={handleAuth}>
+            <input type="email" placeholder="Email Address" className="input" onChange={e => setEmail(e.target.value)} required />
+            <input type="password" placeholder="Password" className="input" onChange={e => setPassword(e.target.value)} required />
+            {!isLogin && (
+              <select className="input" onChange={e => setRole(e.target.value)}>
+                <option value="user">User Role (Can't Delete)</option>
+                <option value="admin">Admin Role (Can Delete)</option>
+              </select>
+            )}
+            <button className="btn" type="submit" disabled={loading}>
+              {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
+            </button>
+          </form>
+          <div style={{ marginTop: '20px', fontSize: '14px', color: '#64748b' }}>
+            {isLogin ? "New here?" : "Already have an account?"} 
+            <span onClick={() => setIsLogin(!isLogin)} style={{ color: '#4f46e5', cursor: 'pointer', marginLeft: '5px', fontWeight: '600' }}>
+              {isLogin ? 'Register' : 'Login'}
+            </span>
           </div>
         </div>
       ) : (
-        <>
-          <nav className="navbar">
-            <div style={{ fontWeight: '900', fontSize: '1.3rem', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <BrainCircuit size={24} color="#6366f1" /> Anything AI
-            </div>
-            <button onClick={logout} style={{ background: 'rgba(239, 68, 68, 0.1)', border: 'none', color: '#f87171', cursor: 'pointer', padding: '8px', borderRadius: '8px' }}>
-              <LogOut size={20} />
+        <div className="dashboard">
+          <div className="header">
+            <h2 style={{ margin: 0, fontSize: '22px' }}>Workspace</h2>
+            <button onClick={logout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+              <LogOut size={22} />
             </button>
-          </nav>
+          </div>
 
-          <main style={{ max_width: '650px', margin: '3rem auto', padding: '0 1.5rem' }}>
-            {aiInsights && (
-              <div className="ai-insight-box">
-                <div className="ai-badge" style={{ marginBottom: '10px', width: 'fit-content' }}>
-                  <Sparkles size={12} /> WORKSPACE INSIGHTS
-                </div>
-                <div style={{ fontSize: '1.1rem', lineHeight: '1.6', color: '#e2e8f0' }}>"{aiInsights}"</div>
+          <form onSubmit={addTask} style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
+            <input 
+              className="input" 
+              style={{ margin: 0, flex: 1 }} 
+              placeholder="Add a new objective..." 
+              value={newTask} 
+              onChange={e => setNewTask(e.target.value)} 
+            />
+            <button className="btn" style={{ width: '90px', marginTop: 0 }} type="submit">
+              <Plus size={20} />
+            </button>
+          </form>
+
+          <div className="task-list">
+            {tasks.length === 0 && !loading && (
+              <div className="empty-state">
+                <p>No tasks found. Add one above!</p>
               </div>
             )}
-
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <h1 style={{ fontSize: '2.5rem', fontWeight: '900', marginBottom: '0.5rem' }}>Mission Control</h1>
-              <p style={{ color: '#94a3b8', fontSize: '1.1rem' }}>Securely managing objective modules.</p>
-            </div>
-
-            <form onSubmit={addTask} style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: '1.25rem', padding: '0.25rem', display: 'flex', alignItems: 'center', marginBottom: '2.5rem' }}>
-              <input 
-                style={{ flex: 1, background: 'transparent', border: 'none', padding: '1rem 1.5rem', color: 'white', fontSize: '1.1rem', outline: 'none' }}
-                placeholder="Draft a new objective..." 
-                value={newTask} 
-                onChange={e => setNewTask(e.target.value)} 
-              />
-              <button 
-                type="button" 
-                onClick={handleMagicRefine}
-                style={{ background: 'transparent', border: 'none', color: '#818cf8', cursor: 'pointer', padding: '10px' }}
-              >
-                {aiWorking === 'refine' ? <Loader2 size={20} className="animate-spin" /> : <Sparkles size={20} />}
-              </button>
-              <button className="primary-btn" style={{ width: '48px', height: '48px', padding: 0, borderRadius: '1rem', margin: '4px' }} type="submit">
-                <Plus size={24} />
-              </button>
-            </form>
-
-            <div>
-              {tasks.map(task => (
-                <div key={task._id} className="task-item">
-                  <div style={{ display: 'flex', justify_content: 'space-between', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', items_center: 'center', gap: '16px' }}>
-                      {task.status === 'completed' ? <CheckCircle2 color="#10b981" /> : <Circle color="#334155" />}
-                      <span style={{ fontWeight: 600, fontSize: '1.1rem', color: task.status === 'completed' ? '#64748b' : 'white' }}>{task.title}</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                      <button 
-                        onClick={() => handleBreakdown(task)}
-                        style={{ background: 'transparent', border: 'none', color: '#818cf8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-                      >
-                        {aiWorking === task._id ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                        {expandedId === task._id ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                      </button>
-                      <button onClick={() => deleteTask(task._id)} style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer' }}>
-                        <Trash2 size={20} />
-                      </button>
-                    </div>
-                  </div>
-                  {expandedId === task._id && (
-                    <div style={{ marginTop: '1.25rem', padding: '1.25rem', background: '#020617', borderRadius: '1rem', fontSize: '0.9rem', color: '#94a3b8', border: '1px solid #334155', whiteSpace: 'pre-line' }}>
-                      <div className="ai-badge" style={{ marginBottom: '10px', width: 'fit-content' }}>AI STRATEGY</div>
-                      {breakdowns[task._id]}
-                    </div>
+            
+            {tasks.map(task => (
+              <div key={task._id} className="task-row">
+                <div className="task-info" onClick={() => toggleTaskStatus(task)}>
+                  {task.status === 'completed' ? (
+                    <CheckCircle2 color="#10b981" size={20} />
+                  ) : (
+                    <Circle color="#cbd5e1" size={20} />
                   )}
+                  <span className={`task-text ${task.status === 'completed' ? 'completed' : ''}`}>
+                    {task.title}
+                  </span>
                 </div>
-              ))}
-            </div>
-          </main>
-        </>
+                <button className="delete-btn" onClick={() => deleteTask(task._id)}>
+                  <Trash2 size={20} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
