@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Trash2, LogOut, Shield, CheckCircle, Circle, Search, Edit2, X, Save } from 'lucide-react';
 
-const API = 'http://localhost:5000/api/v1';
+const API = 'https://anything-ai-backend.onrender.com';
 
 const App = () => {
   const [token, setToken] = useState('');
