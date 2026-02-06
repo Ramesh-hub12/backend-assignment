@@ -4,10 +4,8 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const errorHandler = require('./utils/errorHandler');
 
-// 1. Load Environment Variables 
 dotenv.config();
 
-// 2. Connect to Database [cite: 16, 3]
 connectDB();
 
 const app = express();

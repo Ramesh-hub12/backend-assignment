@@ -7,7 +7,6 @@ const Dashboard = () => {
 
   const loadTasks = async () => {
     try {
-      //
       const { data } = await getTasks();
       setTasks(data);
     } catch (err) {
